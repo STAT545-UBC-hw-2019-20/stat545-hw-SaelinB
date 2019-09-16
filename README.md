@@ -3,7 +3,7 @@
 Welcome to my STAT 545 participation repo
 
 This respository was made for storing STAT 545 participiation files and homework. 
-There is one only one branch, and everything done the first two weeks is stored in the folder Weeks_1_and_2. 
+
 
 All upcoming homework assignments will be found in the STAT 545 github classroom, in [my homework repo](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-SaelinB).
 
