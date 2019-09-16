@@ -14,7 +14,7 @@ All upcoming homework assignments will be found in the STAT 545 github classroom
 
 My name is Saelin, and I am a student starting my MSc in bioinformatics in the Keeling lab at the Beatty Biodiveristy center, where I study molecular evolution of protists.
 
-![This is a tiny little protist] (https://danocivan.files.wordpress.com/2015/03/paramecium.jpg?w=325&h=197)
+![This is a tiny little protist](https://danocivan.files.wordpress.com/2015/03/paramecium.jpg?w=325&h=197)
 
 I'm taking STAT 545 to learn more about how to **explore** and *analyze* data! 
 
