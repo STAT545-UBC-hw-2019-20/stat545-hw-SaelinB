@@ -5,7 +5,15 @@ Welcome to my STAT 545 participation repo
 This respository was made for storing STAT 545 participiation files and homework. 
 
 
-All upcoming homework assignments will be found in the STAT 545 github classroom, in [my homework repo](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-SaelinB).
+All upcoming homework assignments will be found in the STAT 545 github classroom, in [my homework repo](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-SaelinB). Homework for each week will be in the corresponding homework folder, as shown in the table below: 
+
+| Assignment	| Folder | Due Date |
+| ----------- | ------ |------------ |
+| Assignment 01 |	HW01 | September 17, 2019 |
+| Assignment 02 |	HW02 | September 24, 2019 |
+| Assignment 03 |	HW03 | October 01, 2019 |
+| Assignment 04 |	HW04 | October 08, 2019 |
+| Assignment 05 |	HW05 | October 18, 2019 |
 
 
 # About the Author
