@@ -1,0 +1,53 @@
+---
+title: "HW03"
+output: 
+  html_document:
+  toc: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load, include=FALSE}
+library(dplyr)
+library(gapminder)
+library(ggplot2)
+library(knitr)
+library(DT)
+```
+## The data
+# I will be working with the gapminder data set 
+
+```{r Data}
+gapminder %>%
+  datatable()
+
+```
+
+# Task Option 1
+# 
+
+```{r Task 1}
+
+```
+
+
+# Task Option 2
+## What is the maximum and minimum GDP per capita for all continents?
+```{r Task 2}
+
+```
+
+
+# Task Option 4
+## Reporting the mean life expectancy, weighted by life expenctancyand trimmed 10%
+
+```{r Task 4}
+
+```
+
+
+
+
