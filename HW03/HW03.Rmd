@@ -1,10 +1,18 @@
 ---
 title: "HW03"
+author: "Saelin Bjornson"
 output: 
-  html_document:
-  toc: true
-
+  html_document
 ---
+
+<style>
+  .col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+  }
+  .col3 {
+    columns: 3 100px;
+  }
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,20 +26,62 @@ library(knitr)
 library(DT)
 ```
 ## The data
-# I will be working with the gapminder data set 
+# I will be working with the gapminder data set:
+
 
 ```{r Data}
-gapminder %>%
-  datatable()
+datatable(gapminder)
 
 ```
+
+
 
 # Task Option 1
-# 
+## What countries had a life expectancy below the global median for each year?
 
-```{r Task 1}
-
+```{r Task 1.1}
+gapminder %>%
+  group_by(year) %>%
+  mutate(median_lifeExp = median(lifeExp)) %>%
+  filter(lifeExp < median_lifeExp) %>%
+  select(country, year, lifeExp, median_lifeExp) %>%
+  arrange(year, lifeExp, country) %>%
+  rename(Country = country, Year = year, "Life Expectancy" = lifeExp, "Global Median Life Expectancy" = median_lifeExp) %>%
+  as_tibble() %>%
+  datatable()
 ```
+
+## To summarize, how many countries on each contient had a life expectancy below the global median for each year?
+
+<div class="col2">
+```{r Task 1.2}
+gapminder %>%
+  group_by(year) %>%
+  mutate(median_lifeExp = median(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < median_lifeExp) %>%
+  mutate(num_countries = length(unique(country))) %>%
+  select(continent, year, median_lifeExp, num_countries) %>%
+  rename(Year = year, "Global Median Life Expectancy" = median_lifeExp, "Number of Countries" = num_countries) %>%
+  as_tibble() %>%
+  datatable()
+```
+
+```{r Task 1.3}
+gapminder %>%
+  group_by(year) %>%
+  mutate(median_lifeExp = median(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < median_lifeExp) %>%
+  mutate(num_countries = length(unique(country))) %>%
+  select(continent, year, median_lifeExp, num_countries) %>%
+  ggplot(aes(year, num_countries, fill = continent)) +
+  geom_bar(position="stack", stat="identity")
+```
+
+
+</div>
+
 
 
 # Task Option 2
@@ -47,7 +97,7 @@ gapminder %>%
 ```{r Task 4}
 
 ```
-
+<div class="clearer"></div>
 
 
 
