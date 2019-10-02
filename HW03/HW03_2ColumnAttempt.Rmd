@@ -4,6 +4,15 @@ author: "Saelin Bjornson"
 output: html_document
 ---
 
+<style>
+  .col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+  }
+  .col3 {
+    columns: 3 100px;
+  }
+</style>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -42,7 +51,7 @@ gapminder %>%
 
 ## To summarize, how many countries on each contient had a life expectancy below the global median for each year?
 
-
+<div class="col2">
 ```{r Task 1.2}
 gapminder %>%
   group_by(year) %>%
@@ -76,6 +85,7 @@ gapminder %>%
   
 ```
 
+</div>
 
 
 # Task Option 2
@@ -103,7 +113,7 @@ gapminder %>%
   guides(size = FALSE)  #remove size legend
 
 ```
-
+</div>
 
 
 # Task Option 4
@@ -131,5 +141,8 @@ gapminder %>%
   theme_light()
 
 ```
+</div>
+
+<div class="clearer"></div>
 
 
