@@ -1,8 +1,7 @@
 ---
 title: "HW03"
 author: "Saelin Bjornson"
-output: 
-  html_document
+output: html_document
 ---
 
 <style>
