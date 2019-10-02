@@ -86,7 +86,7 @@ gapminder %>%
   group_by(continent) %>%
   summarize("Maximum GDP Per Capita" = max(gdpPercap), "Minimum GDP Per Captia" = min(gdpPercap)) %>%
   select(continent, "Maximum GDP Per Capita", "Minimum GDP Per Captia") %>%
-  kable(align="c")
+  as_tibble()
 
 ```
 ## Graphically:
@@ -114,7 +114,7 @@ gapminder %>%
   summarize(Mean = mean(lifeExp),
             Median = median(lifeExp),
             "Weighted Mean" = weighted.mean(lifeExp, pop)) %>%
-  kable(align="c")
+ as_tibble()
 ```
 ## Graphically:
 ```{r Task 4.2} 
