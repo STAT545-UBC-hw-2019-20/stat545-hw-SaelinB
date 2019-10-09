@@ -16,8 +16,9 @@ library(tidyverse)
 library(gapminder)
 ```
 
+The Data:
 ```{r}
-gapminder
+as_tibble(gapminder)
 ```
 ## Exercise 1
 
@@ -58,32 +59,71 @@ as_tibble(gapminder_long)
 
 2.1 Make a tibble with one row per year, and columns for life expectancy and GDP per capita for two or more countries
 ```{r}
-
+gap_multi_wide <- gapminder %>%
+  filter(country %in% c("China", "Taiwan", "Japan")) %>%
+  rename(GDP_PerCap = gdpPercap, Life_Expectancy = lifeExp) %>%
+  pivot_wider(id_cols = year,
+              names_from = country,
+              values_from = c(GDP_PerCap, Life_Expectancy), 
+              names_sep = " ")
+as_tibble(gap_multi_wide)
 ```
+
 2.2 Re-lengthen the data
 ```{r}
-
+gap_multi_long <- gap_multi_wide %>%
+  pivot_longer(cols = -year,
+               names_to = c("Metric","country"), 
+               values_to= c("Measurement"),
+               names_sep = " ")
+as_tibble(gap_multi_long)
+  
 ```
 
 
 ## Exercise 3
 
-3.1 For each guest in the guestlist (guest tible), add a column for email address, which can be found in email table
-
+The Data:
 ```{r }
 guest <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/attend.csv")
 email <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/emails.csv")
+as_tibble(email)
+as_tibble(guest)
+```
+
+3.1 For each guest in the guestlist (guest tible), add a column for email address, which can be found in email table
+
+```{r }
+emails <- email %>%  #modify email to make it "joinable"
+  rename("name" = guest) %>%   #rename guest to name 
+  separate_rows("name", sep =", ")  # seperate names within one cell into separate rows
+
+as_tibble(left_join(guest, emails))  # join the tables, adding email column to guest
 
 ```
 
 3.2 Who do we have emails for, yet are not on the guestlist?
 
 ```{r 3.2 }
+emails <- email %>%  #modify email to make it "joinable"
+  rename("name" = guest) %>%   #rename guest to name 
+  separate_rows("name", sep =", ")  # seperate names within one cell into separate rows
+
+as_tibble(anti_join(emails, guest)) #filter-join the tables, keeping only rows in emails that aren't in guest
 
 ```
 
 
 3.3 Make a guestlist that includes everyone we have emails for (in addition to those on the original guestlist)
 ```{r 3.3 }
+emails <- email %>%  #modify email to make it "joinable"
+  rename("name" = guest) %>%   #rename guest to name 
+  separate_rows("name", sep =", ")  # seperate names within one cell into separate rows
+
+as_tibble(full_join(guest,emails))
+
 
 ```
+
+
+
