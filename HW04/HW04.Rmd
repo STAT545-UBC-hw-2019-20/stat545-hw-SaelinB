@@ -16,25 +16,41 @@ library(tidyverse)
 library(gapminder)
 ```
 
+```{r}
+gapminder
+```
 ## Exercise 1
 
 ** Univariate Option 1: **
 1.1 Make a tibble with one row per year, and columns for life expectancy for two or more countries
 
 ```{r}
-
+gapminder_wide <- gapminder %>%
+  filter(country %in% c("China", "Taiwan", "Japan")) %>%
+  pivot_wider(names_from = country,
+              values_from = lifeExp,
+               id_cols = year )
+as_tibble(gapminder_wide)
 ```
 
 1.2 Shape a scatterplot to life expectancy for one country against that of another
 ```{r}
-
+gapminder_wide %>%
+  ggplot(aes(China, Japan, color = year, size = 1.5)) +
+  geom_point() +
+  labs(title = "Life Expectancy of China vs. Japan", subtitle = "From 1952 to 2007", color = "Year") +
+  guides(size = FALSE) + #remove size legend
+  theme_light()
 ```
 
 1.3 Re-lengthen the data
 ```{r}
-
+gapminder_long <- gapminder_wide %>%
+  pivot_longer(names_to ="Country",
+               values_to = "Life Expectancy", 
+                 cols = -year) 
+as_tibble(gapminder_long)
 ```
-
 
 ## Exercise 2
 
