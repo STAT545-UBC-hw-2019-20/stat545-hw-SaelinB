@@ -1,0 +1,48 @@
+---
+title: "HW05"
+author: "Saelin"
+date: "14/10/2019"  
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 1: here::here 
+**Explain the value of the here::here package**
+
+
+
+## Exercise 2: Factor Management
+**Choose 1 dataset and a variable to explore**
+
+**1. Drop the factors/levels, reorder levels based on knowledge of data**
+Factors are...
+In this dataset, the factors are..
+```{r}
+
+```
+
+
+## Exercise 3: File Input/Output
+**Experiment with a dataset, export it to disk and then reload it**
+
+```{r}
+
+```
+
+
+## Exercise 4: Visualization Design 
+**Recreate an old figure in light of something learned recently in class about visualization of design and colour. Juxtapose **
+
+```{r}
+
+```
+
+## Exercise 5: Writing Figure to File
+**Save a plot to file, then load and embed that file into your report**
+
+```{r}
+
+```
