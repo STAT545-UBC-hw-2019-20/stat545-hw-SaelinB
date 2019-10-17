@@ -49,7 +49,7 @@ gap_lifeVar <- gap %>%
 as_tibble(gap_lifeVar)
 ```
 
-Now, we will first plot continents based on variance of life expectancy their countries had over the years:
+Now, we will first plot continents against variance of life expectancy their countries had over the years:
 ```{r}
 gap_lifeVar %>% 
   ggplot(aes(continent, var_life)) +
@@ -57,8 +57,8 @@ gap_lifeVar %>%
   labs(y="Variance in Life Expectancy", x = "") +
   theme_classic()
 ```
-Now, we will plot continents based on their mean life expectancy, in order of the variance of life expectancy over the years:
 
+But this isn't in order! Instead, we will plot in order of the variance of life expectancy over the years.To do this we will use fct_reorder to reorder continent by lowest to highest variance:
 ```{r}
 gap_lifeVar %>%   
   ggplot(aes(fct_reorder(continent, var_life), var_life))  +
@@ -67,29 +67,42 @@ gap_lifeVar %>%
   theme_classic()
 ```
  
+ 
+ 
  **Exploring the effects of re-leveling on a factor**
-
 
 Using the same summarised data, the original factor continent is automatically plotted in alphabetical order. Therefore, to demonstrate the effects of arrange() before and after releveling this factor I will arrange continents by descending alphabetical order. 
 
 ```{r}
-arrange(desc(levels(gap_lifeVar$continent)))
+gap_lifeVar %>%
+  arrange(desc(continent)) %>%
+  as_tibble()
 ```
 
 To demonstrate how arrange affects releveled factors, I will first relevel the factor content to a random, non-alphabetical order:
 ```{r}
-gap_lifeVar$continent <- factor(gap_lifeVar$continent, levels = c("Asia", "Europe", "Americas", "Africa"))
-print(gap_lifeVar)
-#ggplot(gap_lifeVar, aes(continent, var_life)) +
- # geom_bar(stat ="identity")
-
-#levels(gap_lifeVar$continent)
+gap_lifeVar_RL <- gap_lifeVar %>%
+  fct_relevel(continent,"Asia", "Europe", "Americas", "Africa")
+as_tibble(gap_lifeVar_RL)
 ```
 
+fct_relevel doesn't seem to work on a tibble! Let's try instead making a single factor continent, and then relevelling it. 
+
+```{r}
+gap_lifeVar_RL <- fct_relevel(gap_lifeVar$continent, "Asia", "Europe", "Americas", "Africa")
+levels(gap_lifeVar_RL)
+```
+We see that the levels are releveled in the order we specified. 
+
+When we try to arrange:
+```{r}
+levels(arrange(gap_lifeVar_RL))
+```
+We get an error: Error in UseMethod("arrange_") : no applicable method for 'arrange_' applied to an object of class "factor"
+Therefore arrange() cannot be used on a factor! 
 
 
-
-Original vs.after releveling    (GOOD VERSION??)
+To show how relevelling can work in generating plots, I will first make a plot showing continent vs. variance in life, which will be automatically in alphabetical order. In the second plot, I have releveled the factors to put Europe first, while all the rest remain in the default alphabetical order. 
 ```{r}
 gap1 <- gap_lifeVar %>% 
   ggplot(aes(continent, var_life)) +
@@ -107,10 +120,38 @@ gap2 <-gap_lifeVar %>%
 grid.arrange(gap1, gap2, ncol = 2)
 ```
 
+To demonstrate *further*, I will make a tibble with continents arranged in descending order, then use that to make the same plots again: 
+```{r}
+gap_desc <- gap_lifeVar %>%
+  arrange(desc(continent))
+as_tibble(gap_desc)
+```
+
+```{r}
+gap_desc1 <- gap_desc %>% 
+  ggplot(aes(continent, var_life)) +
+  geom_bar(stat="identity",fill = "deepskyblue") +
+  labs(y="Variance in Life Expectancy", x = "") +
+  theme_classic()
+
+gap_desc2 <-gap_desc %>% 
+  ggplot(aes(fct_relevel(continent, "Europe"), var_life)) +
+  geom_bar(stat="identity",fill = "deepskyblue") +
+  labs(y="Variance in Life Expectancy", x = "") +
+  theme_classic()
+
+grid.arrange(gap_desc1, gap_desc2, ncol = 2)
+```
+We see the plots are in the same order as the unarranged tibble. So altogether, we've learned that arranging tibbles has no effects on plots, but relevelling does, and similarily relevelling doesn't work on tibbles. 
+
+
+
+
 
 ## Exercise 3: File Input/Output
 **Experiment with a dataset, export it to disk and then reload it**
 
+Here I will summarise some population data in a dataframe gap_pop_summary, save it as a csv file in the folder HW05, and then read to as a new variable gap_populations, and display that as a tibble:
 ```{r}
 gap_pop_summary <- gapminder %>% summarise(mean = mean(pop),
                                            median = median(pop),
@@ -130,24 +171,27 @@ as_tibble(gap_populations)
 ## Exercise 4: Visualization Design 
 **Recreate an old figure in light of something learned recently in class about visualization of design and colour. Juxtapose the two **
 
-My old figure visualized the answer to "how many countries on each contient had a life expectancy below the global median for each year?". However, 
+My old figure visualized the answer to "how many countries on each contient had a life expectancy below the global median for each year?". However, it was an ineffective visualization because it was a stacked bar chart, which are really difficult to see changes in data besides the "ground" bar.We can sort of see that there are small changes happening, but it's not obvious or appreciable in this visualization. 
+
+Instead, I'll re-do this plot by making a faceted line plot to better show changes in trends for each country. I will also use free Y-axes scales, because the continents have vastly different numbers of countries to begin with, so there is no point on putting them on the same scale (If they were on the same Y-axis scale, it would be better to normalize change to number of countries in continent)
 ```{r}
-fig1 <- gapminder %>%
-  group_by(year) %>%
-  mutate(median_lifeExp = median(lifeExp)) %>%
-  group_by(continent) %>%
-  filter(lifeExp < median_lifeExp) %>%
-  mutate(num_countries = length(unique(country))) %>%
-  distinct(year, continent, .keep_all =TRUE) %>%  
-  select(continent, year, num_countries) %>%
-  ggplot(aes(factor(year), num_countries, fill = continent, group = continent)) +
-  geom_bar(position="stack", stat="identity") +
-  ylab("Number of Countries") + 
-  xlab("Year") +
-  scale_fill_discrete("Continent") +
-  theme_light()
+#fig1 <- 
+#gapminder %>%
+ # group_by(year) %>%
+  #mutate(median_lifeExp = median(lifeExp)) %>%
+  #group_by(continent) %>%
+  #filter(lifeExp < median_lifeExp) %>%
+  #mutate(num_countries = length(unique(country))) %>%
+  #distinct(year, continent, .keep_all =TRUE) %>%  
+  #select(continent, year, num_countries) %>%
+  #ggplot(aes(factor(year), num_countries, fill = continent, group = continent)) +
+  #geom_bar(position="stack", stat="identity") +
+  #ylab("Number of Countries") + 
+  #xlab("Year") +
+  #scale_fill_discrete("Continent") +
+  #theme_light()
 
-fig2 <- gapminder %>%
+gapminder %>%
   group_by(year) %>%
   mutate(median_lifeExp = median(lifeExp)) %>%
   group_by(continent) %>%
@@ -155,16 +199,19 @@ fig2 <- gapminder %>%
   mutate(num_countries = length(unique(country))) %>%
   distinct(year, continent, .keep_all =TRUE) %>%  
   select(continent, year, num_countries) %>%
+  ggplot(aes(year, num_countries)) +
+  geom_point() +
+  facet_grid(~continent) 
   
-  ##MAke New FIG
+  ##MAke New facet_grid()
 
-grid.arrange(fig1, fig2, ncol = 2)
+#grid.arrange(fig1, fig2, ncol = 2)
 ```
 
 ## Exercise 5: Writing Figure to File
 **Save a plot to file, then load and embed that file into your report**
 
-I will save my updated plot from exercise 4
+I will save my updated plot from exercise using ggsave()
 ```{r}
 ggsave("Updated_plot.png", plot = fig2)
 ```
