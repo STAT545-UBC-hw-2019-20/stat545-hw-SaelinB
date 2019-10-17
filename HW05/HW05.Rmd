@@ -9,19 +9,102 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(gapminder)
+library(tidyverse)
+library(ggplot2)
+library(forcats)
+library(here)
+library(gridExtra)
+
+```
+
 ## Exercise 1: here::here 
 **Explain the value of the here::here package**
 
+It is good practice to keep data in separate folders from the working directory (WD) of analysis files. Unlike .R scripts where WD is the top level of the project folder (where the .Rproj is located), for .Rmd files, the WD is the folder that the .Rmd file is located in. This can make importing and exporting files in different paths complicated. The here package is useful in this sense in that it sets the top level of the project folder (or any location you want) as “here”, and specifies locations of files relative to that folder rather than the WD. This allows you to easily set up relevant file structures as you run the script, rather than dealing with complicated pre-determined structures. This allows you to run any R script fresh as it is written. 
+
+Using here:here, you don’t have to set the WD with setwd(), which requires a specific path that would need to modified for each person or everytime you move and/or rename folders. Therefore, here::here makes Rproj analyses more portable across users with their own file struture.  It also is applicable to all operating systems, as the folder-subfolder references are separate strings in the arguments rather than specified by / or \, although traditional path references can be used as well. 
 
 
 ## Exercise 2: Factor Management
 **Choose 1 dataset and a variable to explore**
 
 **1. Drop the factors/levels, reorder levels based on knowledge of data**
-Factors are...
-In this dataset, the factors are..
-```{r}
 
+```{r}
+gap <- filter(gapminder, continent != "Oceania") %>%  droplevels() 
+nlevels(gap$continent)
+```
+compared to the original data, there is now one less level in continent:
+```{r}
+nlevels(gapminder$continent)
+```
+
+```{r}
+gap_lifeVar <- gap %>%
+  group_by(continent) %>%
+  summarise(var_life = var(lifeExp))
+
+as_tibble(gap_lifeVar)
+```
+
+Now, we will first plot continents based on variance of life expectancy their countries had over the years:
+```{r}
+gap_lifeVar %>% 
+  ggplot(aes(continent, var_life)) +
+  geom_bar(stat="identity",  fill = "deepskyblue") +
+  labs(y="Variance in Life Expectancy", x = "") +
+  theme_classic()
+```
+Now, we will plot continents based on their mean life expectancy, in order of the variance of life expectancy over the years:
+
+```{r}
+gap_lifeVar %>%   
+  ggplot(aes(fct_reorder(continent, var_life), var_life))  +
+  geom_bar(stat="identity", fill = "deepskyblue") +
+  labs(y="Variance in Life Expectancy", x = "") +
+  theme_classic()
+```
+ 
+ **Exploring the effects of re-leveling on a factor**
+
+
+Using the same summarised data, the original factor continent is automatically plotted in alphabetical order. Therefore, to demonstrate the effects of arrange() before and after releveling this factor I will arrange continents by descending alphabetical order. 
+
+```{r}
+arrange(desc(levels(gap_lifeVar$continent)))
+```
+
+To demonstrate how arrange affects releveled factors, I will first relevel the factor content to a random, non-alphabetical order:
+```{r}
+gap_lifeVar$continent <- factor(gap_lifeVar$continent, levels = c("Asia", "Europe", "Americas", "Africa"))
+print(gap_lifeVar)
+#ggplot(gap_lifeVar, aes(continent, var_life)) +
+ # geom_bar(stat ="identity")
+
+#levels(gap_lifeVar$continent)
+```
+
+
+
+
+Original vs.after releveling    (GOOD VERSION??)
+```{r}
+gap1 <- gap_lifeVar %>% 
+  ggplot(aes(continent, var_life)) +
+  geom_bar(stat="identity",fill = "deepskyblue") +
+  labs(y="Variance in Life Expectancy", x = "") +
+  theme_classic()
+
+gap2 <-gap_lifeVar %>% 
+  arrange(var_life) %>%
+  ggplot(aes(fct_relevel(continent, "Europe"), var_life)) +
+  geom_bar(stat="identity",fill = "deepskyblue") +
+  labs(y="Variance in Life Expectancy", x = "") +
+  theme_classic()
+
+grid.arrange(gap1, gap2, ncol = 2)
 ```
 
 
@@ -29,15 +112,52 @@ In this dataset, the factors are..
 **Experiment with a dataset, export it to disk and then reload it**
 
 ```{r}
+gap_pop_summary <- gapminder %>% summarise(mean = mean(pop),
+                                           median = median(pop),
+                                           stdeviation = sd(pop),
+                                           variance = var(pop),
+                                           min = min(pop), 
+                                           max = max(pop))
 
+write_csv(gap_pop_summary, here::here("HW05", "gap_pop_summmary.csv"))
+
+gap_populations <- read_csv(here::here("HW05", "gap_pop_summmary.csv"))
+
+as_tibble(gap_populations)
 ```
 
 
 ## Exercise 4: Visualization Design 
-**Recreate an old figure in light of something learned recently in class about visualization of design and colour. Juxtapose **
+**Recreate an old figure in light of something learned recently in class about visualization of design and colour. Juxtapose the two **
 
+My old figure visualized the answer to "how many countries on each contient had a life expectancy below the global median for each year?". However, 
 ```{r}
+fig1 <- gapminder %>%
+  group_by(year) %>%
+  mutate(median_lifeExp = median(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < median_lifeExp) %>%
+  mutate(num_countries = length(unique(country))) %>%
+  distinct(year, continent, .keep_all =TRUE) %>%  
+  select(continent, year, num_countries) %>%
+  ggplot(aes(factor(year), num_countries, fill = continent, group = continent)) +
+  geom_bar(position="stack", stat="identity") +
+  ylab("Number of Countries") + 
+  xlab("Year") +
+  scale_fill_discrete("Continent") +
+  theme_light()
 
+fig2 <- gapminder %>%
+  group_by(year) %>%
+  mutate(median_lifeExp = median(lifeExp)) %>%
+  group_by(continent) %>%
+  filter(lifeExp < median_lifeExp) %>%
+  mutate(num_countries = length(unique(country))) %>%
+  distinct(year, continent, .keep_all =TRUE) %>%  
+  select(continent, year, num_countries) %>%
+  ##MAke New FIG
+
+grid.arrange(fig1, fig2, ncol = 2)
 ```
 
 ## Exercise 5: Writing Figure to File
