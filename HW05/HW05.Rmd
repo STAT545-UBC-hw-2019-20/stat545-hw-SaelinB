@@ -155,6 +155,7 @@ fig2 <- gapminder %>%
   mutate(num_countries = length(unique(country))) %>%
   distinct(year, continent, .keep_all =TRUE) %>%  
   select(continent, year, num_countries) %>%
+  
   ##MAke New FIG
 
 grid.arrange(fig1, fig2, ncol = 2)
@@ -163,6 +164,12 @@ grid.arrange(fig1, fig2, ncol = 2)
 ## Exercise 5: Writing Figure to File
 **Save a plot to file, then load and embed that file into your report**
 
+I will save my updated plot from exercise 4
 ```{r}
-
+ggsave("Updated_plot.png", plot = fig2)
 ```
+Here is the plot! 
+
+![My new and improved plot](Updated_plot.png)
+
+
