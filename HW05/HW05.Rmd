@@ -2,7 +2,9 @@
 title: "HW05"
 author: "Saelin"
 date: "14/10/2019"  
-output: html_document
+output: 
+  html_document:
+  toc: true
 ---
   
 ```{r setup, include=FALSE}
@@ -58,7 +60,7 @@ gap_lifeVar %>%
   theme_classic()
 ```
 
-But this isn't in order! Instead, we will plot in order of the variance of life expectancy over the years.To do this we will use fct_reorder to reorder continent by lowest to highest variance:
+But this isn't in order! Instead, we will plot in order of the variance (low to high). To do this we will use fct_reorder to reorder continent by lowest to highest variance:
 ```{r}
 gap_lifeVar %>%   
   ggplot(aes(fct_reorder(continent, var_life), var_life))  +
@@ -81,12 +83,14 @@ gap_lifeVar %>%
 
 To demonstrate how arrange affects releveled factors, I will first relevel the factor content to a random, non-alphabetical order:
 ```{r}
-gap_lifeVar_RL <- gap_lifeVar %>%
-  fct_relevel(continent,"Asia", "Europe", "Americas", "Africa")
-as_tibble(gap_lifeVar_RL)
+#gap_lifeVar_RL <- gap_lifeVar %>%
+ # fct_relevel(continent,"Asia", "Europe", "Americas", "Africa")
+#as_tibble(gap_lifeVar_RL)
 ```
+But we get: Error: `f` must be a factor (or character vector or numeric vector).
+fct_relevel doesn't seem to work on a tibble! (I can't actually write it because knittr doesn't knit code that doesn't work)
 
-fct_relevel doesn't seem to work on a tibble! Let's try instead making a single factor continent, and then relevelling it. 
+Let's try instead making a single factor continent, and then relevelling it. 
 
 ```{r}
 gap_lifeVar_RL <- fct_relevel(gap_lifeVar$continent, "Asia", "Europe", "Americas", "Africa")
@@ -94,12 +98,14 @@ levels(gap_lifeVar_RL)
 ```
 We see that the levels are releveled in the order we specified. 
 
-When we try to arrange:
+When we try to arrange like this:
 ```{r}
-levels(arrange(gap_lifeVar_RL))
+#levels(arrange(gap_lifeVar_RL))
 ```
 We get an error: Error in UseMethod("arrange_") : no applicable method for 'arrange_' applied to an object of class "factor"
 Therefore arrange() cannot be used on a factor! 
+(again, can't actually write the defective code)
+
 
 
 To show how relevelling can work in generating plots, I will first make a plot showing continent vs. variance in life, which will be automatically in alphabetical order. In the second plot, I have releveled the factors to put Europe first, while all the rest remain in the default alphabetical order. 
@@ -187,8 +193,8 @@ fig1 <-gapminder %>%
   group_by(continent) %>%
   summarize(max = max(gdpPercap), min = min(gdpPercap)) %>%
   ggplot(aes(continent)) +
-  geom_point(aes(continent, max, color = "Maximum",size = 5)) +
-  geom_point(aes(continent, min,color= "Minimum",size = 5))  +
+  geom_point(aes(continent, max, color = "Maximum",size = 3)) +
+  geom_point(aes(continent, min,color= "Minimum",size = 3))  +
   scale_color_discrete("") +
   xlab("Continent") +
   scale_y_continuous("GDP Per Capita", breaks=seq(0,120000,10000), labels=waiver()) +  
