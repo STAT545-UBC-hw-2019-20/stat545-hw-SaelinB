@@ -16,7 +16,7 @@ library(ggplot2)
 library(forcats)
 library(here)
 library(gridExtra)
-
+library(scales)
 ```
 
 ## Exercise 1: here::here 
@@ -142,7 +142,7 @@ gap_desc2 <-gap_desc %>%
 
 grid.arrange(gap_desc1, gap_desc2, ncol = 2)
 ```
-We see the plots are in the same order as the unarranged tibble. So altogether, we've learned that arranging tibbles has no effects on plots, but relevelling does, and similarily relevelling doesn't work on tibbles. 
+We see the plots are in the same order as the unarranged tibble. So altogether, we've learned that arranging tibbles has no effects on plots, but relevelling within ggplot does, and similarily relevelling doesn't work on tibbles. 
 
 
 
@@ -171,42 +171,45 @@ as_tibble(gap_populations)
 ## Exercise 4: Visualization Design 
 **Recreate an old figure in light of something learned recently in class about visualization of design and colour. Juxtapose the two **
 
-My old figure visualized the answer to "how many countries on each contient had a life expectancy below the global median for each year?". However, it was an ineffective visualization because it was a stacked bar chart, which are really difficult to see changes in data besides the "ground" bar.We can sort of see that there are small changes happening, but it's not obvious or appreciable in this visualization. 
+My first plot attempts to show the maximum and minimum GDP per capita each continent had for each year. However, this pot doesn't effectively communicate the data well, because it doesn't highlight the data (too much background distraction), and the scale that it is on doesn't show appreciable changes in the "minimum" data points. 
 
-Instead, I'll re-do this plot by making a faceted line plot to better show changes in trends for each country. I will also use free Y-axes scales, because the continents have vastly different numbers of countries to begin with, so there is no point on putting them on the same scale (If they were on the same Y-axis scale, it would be better to normalize change to number of countries in continent)
+What I changed:
+* connected dots wtih line to see trend better
+* changed to y scale to log10 to better see changes in lower values
+* set more y ticks to clearly show changes in ammounts
+* added dollar signs to y axis, and rounded to nearest $10
+* reduced background distraction and changed dot colour
+* took out redundant "Continent" X-axis label (we know they're continents), and just explained Y axis in title 
+A lot of this is done using the "scales" package
+
 ```{r}
-#fig1 <- 
-#gapminder %>%
- # group_by(year) %>%
-  #mutate(median_lifeExp = median(lifeExp)) %>%
-  #group_by(continent) %>%
-  #filter(lifeExp < median_lifeExp) %>%
-  #mutate(num_countries = length(unique(country))) %>%
-  #distinct(year, continent, .keep_all =TRUE) %>%  
-  #select(continent, year, num_countries) %>%
-  #ggplot(aes(factor(year), num_countries, fill = continent, group = continent)) +
-  #geom_bar(position="stack", stat="identity") +
-  #ylab("Number of Countries") + 
-  #xlab("Year") +
-  #scale_fill_discrete("Continent") +
-  #theme_light()
-
-gapminder %>%
-  group_by(year) %>%
-  mutate(median_lifeExp = median(lifeExp)) %>%
+fig1 <-gapminder %>%
   group_by(continent) %>%
-  filter(lifeExp < median_lifeExp) %>%
-  mutate(num_countries = length(unique(country))) %>%
-  distinct(year, continent, .keep_all =TRUE) %>%  
-  select(continent, year, num_countries) %>%
-  ggplot(aes(year, num_countries)) +
-  geom_point() +
-  facet_grid(~continent) 
-  
-  ##MAke New facet_grid()
+  summarize(max = max(gdpPercap), min = min(gdpPercap)) %>%
+  ggplot(aes(continent)) +
+  geom_point(aes(continent, max, color = "Maximum",size = 5)) +
+  geom_point(aes(continent, min,color= "Minimum",size = 5))  +
+  scale_color_discrete("") +
+  xlab("Continent") +
+  scale_y_continuous("GDP Per Capita", breaks=seq(0,120000,10000), labels=waiver()) +  
+  guides(size = FALSE) 
 
-#grid.arrange(fig1, fig2, ncol = 2)
+fig2 <-gapminder %>%
+  group_by(continent) %>%
+  summarize(Max = max(gdpPercap), Min = min(gdpPercap)) %>%
+  ggplot(aes(continent)) +
+  geom_point(aes(continent, Max), color = "red", size = 3) +
+  geom_point(aes(continent, Min), color= "blue", size = 3)  +
+  scale_y_continuous(trans='log10',
+                     breaks = trans_breaks("log10", function(x) 10^x, n = 20), 
+                     labels = dollar_format(accuracy = 10)) +
+  labs(title ="Maximum and Minimum GDP Per Capita of Each Continent", 
+       subtitle = "from 1952 to 2007", x = "", y = "") +
+  theme_minimal()
+
+grid.arrange(fig1, fig2, ncol = 2)
 ```
+
 
 ## Exercise 5: Writing Figure to File
 **Save a plot to file, then load and embed that file into your report**
